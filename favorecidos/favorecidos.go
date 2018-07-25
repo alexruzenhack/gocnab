@@ -108,8 +108,8 @@ func CriarConta(numero uint, dv string) (*Conta, error) {
 func (c Conta) Processar() string {
 	sNumero := fmt.Sprintf("%012d", c.Numero)
 	sDv := c.Dv
-	if len(c.Dv) > 2 {
+	if len(c.Dv) > 1 {
 		sDv = string(sDv[0]) // pega primeiro dígito
 	}
-	return sNumero + sDv
+	return sNumero[:12] + sDv
 }
