@@ -32,10 +32,24 @@ func TestErroAoCriarContaComNumeroMaiorQue12Digitos(t *testing.T) {
 	}
 }
 
+func TestMensagemErroAoCriarContaComNumeroMaiorQue12Digitos(t *testing.T) {
+	_, ok := CriarConta(9876543210013, "0")
+	if "Número da Conta deve ter no máximo 12 dígitos" != fmt.Sprint(ok) {
+		t.Error("Mensagem de erro inapropriada ao criar Conta com Numero acima de 12 dígitos")
+	}
+}
+
 func TestErroAoCriarContaComDvMaiorQue2Digitos(t *testing.T) {
 	_, ok := CriarConta(001, "123")
 	if ok == nil {
 		t.Error("Erro, a propriedade Dv do objeto Conta deve ter até 2 dígitos")
+	}
+}
+
+func TestMesagemErroAoCriarContaComDvMaiorQue2Digitos(t *testing.T) {
+	_, ok := CriarConta(001, "123")
+	if "Dígito Verificador da Conta deve ter no máximo 2 digitos" != fmt.Sprint(ok) {
+		t.Error("Mensagem de erro inapropriada ao criar Conta com Dv acima de 2 dígitos")
 	}
 }
 
