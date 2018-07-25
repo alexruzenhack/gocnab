@@ -47,7 +47,7 @@ func TestErroAoCriarContaComDvMaiorQue2Digitos(t *testing.T) {
 }
 
 func TestMesagemErroAoCriarContaComDvMaiorQue2Digitos(t *testing.T) {
-	_, ok := CriarConta(001, "123")
+	_, ok := CriarConta(001, "456")
 	if "Dígito Verificador da Conta deve ter no máximo 2 digitos" != fmt.Sprint(ok) {
 		t.Error("Mensagem de erro inapropriada ao criar Conta com Dv acima de 2 dígitos")
 	}
