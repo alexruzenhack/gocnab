@@ -81,14 +81,14 @@ func CriarAgencia(codigo uint32, dv string) (*Agencia, error) {
 	if codigo > 99999 {
 		return nil, errors.New("Código da Agencia deve ter no máximo 5 dígitos")
 	} else if len(dv) > 1 {
-		return nil, errors.New("Dígito Verificador da Agencia deve ter no máximo 1 dígitos")
+		return nil, errors.New("Dígito Verificador da Agencia deve ter no máximo 1 dígito")
 	}
 	return &Agencia{Codigo: codigo, Dv: dv}, nil
 }
 
 func (a Agencia) Processar() string {
 	sCodigo := fmt.Sprintf("%05d", a.Codigo)
-	return sCodigo + a.Dv
+	return sCodigo[:5] + a.Dv[:1]
 }
 
 type Conta struct {
@@ -107,9 +107,5 @@ func CriarConta(numero uint, dv string) (*Conta, error) {
 
 func (c Conta) Processar() string {
 	sNumero := fmt.Sprintf("%012d", c.Numero)
-	sDv := c.Dv
-	if len(c.Dv) > 1 {
-		sDv = string(sDv[0]) // pega primeiro dígito
-	}
-	return sNumero[:12] + sDv
+	return sNumero[:12] + c.Dv[:1]
 }
