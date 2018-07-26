@@ -16,7 +16,7 @@ func TestPodeCriarConta(t *testing.T) {
 	}
 }
 
-func TestPodeCriarContaComDvDeDoisDigitos(t *testing.T) {
+func TestPodeCriarContaComDvDe2Digitos(t *testing.T) {
 	resultado, ok := CriarConta(9854, "43")
 	if ok != nil {
 		t.Error(ok)

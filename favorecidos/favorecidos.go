@@ -16,22 +16,22 @@ func (cc Camara) Processar() string {
 	return fmt.Sprintf("%03d", cc)
 }
 
-func CriarFavorecido(camara Camara, banco uint16, cc ContaCorrente, nome string) (*Favorecido, error) {
+func CriarFavorecido(camara Camara, banco uint16, cc ContaCorrente, nome string) (Favorecido, error) {
 	if _, ok := Camara_chave[uint16(camara)]; !ok {
-		return nil, errors.New("Código da Camara não permitido")
+		return Favorecido{}, errors.New("Código da Camara não permitido")
 	}
 	if camara > 999 {
-		return nil, errors.New("Código da Camara deve ter no máximo 3 dígitos")
+		return Favorecido{}, errors.New("Código da Camara deve ter no máximo 3 dígitos")
 	} else if banco > 999 {
-		return nil, errors.New("Código do Banco deve ter no máximo 3 dígitos")
+		return Favorecido{}, errors.New("Código do Banco deve ter no máximo 3 dígitos")
 	} else if len(nome) > 30 {
-		return nil, errors.New("Nome do Favorecido deve ter no máximo 30 caracteres")
+		return Favorecido{}, errors.New("Nome do Favorecido deve ter no máximo 30 caracteres")
 	}
-	return &Favorecido{Camara: camara, Banco: banco, ContaCorrente: cc, Nome: nome}, nil
+	return Favorecido{Camara: camara, Banco: banco, ContaCorrente: cc, Nome: nome}, nil
 }
 
 func (f Favorecido) Processar() string {
-	return f.Camara.Processar() + fmt.Sprintf("%03d", f.Banco) + f.ContaCorrente.Processar() + fmt.Sprintf("%30s", f.Nome)
+	return f.Camara.Processar() + fmt.Sprintf("%03d", f.Banco) + f.ContaCorrente.Processar() + fmt.Sprintf("%-30s", f.Nome)
 }
 
 type Camara uint16
@@ -60,12 +60,12 @@ type ContaCorrente struct {
 	Dv      string
 }
 
-func CriarContaCorrente(agencia Agencia, conta Conta) *ContaCorrente {
+func CriarContaCorrente(agencia Agencia, conta Conta) ContaCorrente {
 	sDv := conta.Dv
-	if len(conta.Dv) == 2 {
+	if len(conta.Dv) >= 2 {
 		sDv = string(sDv[1]) // pega segundo dígito
 	}
-	return &ContaCorrente{Agencia: agencia, Conta: conta, Dv: sDv}
+	return ContaCorrente{Agencia: agencia, Conta: conta, Dv: sDv}
 }
 
 func (cc ContaCorrente) Processar() string {
@@ -77,13 +77,13 @@ type Agencia struct {
 	Dv     string
 }
 
-func CriarAgencia(codigo uint32, dv string) (*Agencia, error) {
+func CriarAgencia(codigo uint32, dv string) (Agencia, error) {
 	if codigo > 99999 {
-		return nil, errors.New("Código da Agencia deve ter no máximo 5 dígitos")
+		return Agencia{}, errors.New("Código da Agencia deve ter no máximo 5 dígitos")
 	} else if len(dv) > 1 {
-		return nil, errors.New("Dígito Verificador da Agencia deve ter no máximo 1 dígito")
+		return Agencia{}, errors.New("Dígito Verificador da Agencia deve ter no máximo 1 dígito")
 	}
-	return &Agencia{Codigo: codigo, Dv: dv}, nil
+	return Agencia{Codigo: codigo, Dv: dv}, nil
 }
 
 func (a Agencia) Processar() string {
@@ -96,13 +96,13 @@ type Conta struct {
 	Dv     string
 }
 
-func CriarConta(numero uint, dv string) (*Conta, error) {
+func CriarConta(numero uint, dv string) (Conta, error) {
 	if numero > 999999999999 {
-		return nil, errors.New("Número da Conta deve ter no máximo 12 dígitos")
+		return Conta{}, errors.New("Número da Conta deve ter no máximo 12 dígitos")
 	} else if len(dv) > 2 {
-		return nil, errors.New("Dígito Verificador da Conta deve ter no máximo 2 digitos")
+		return Conta{}, errors.New("Dígito Verificador da Conta deve ter no máximo 2 digitos")
 	}
-	return &Conta{Numero: numero, Dv: dv}, nil
+	return Conta{Numero: numero, Dv: dv}, nil
 }
 
 func (c Conta) Processar() string {
