@@ -1,4 +1,4 @@
-package favorecidos
+package contacorrente
 
 import (
 	"testing"

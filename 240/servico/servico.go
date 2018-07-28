@@ -1,4 +1,4 @@
-package servicos
+package servico
 
 import (
 	"errors"
