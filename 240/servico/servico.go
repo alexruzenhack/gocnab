@@ -28,17 +28,17 @@ type ServicoHeader struct {
 	LayoutLote uint16 // *G030
 }
 
-func CriarServicoHeader(operacao Operacao, servico Servico, fLancamento FormaLancamento) (*ServicoHeader, error) {
+func CriarServicoHeader(operacao Operacao, servico Servico, fLancamento FormaLancamento) (ServicoHeader, error) {
 	if _, ok := Operacao_Valor[string(operacao)]; !ok {
-		return nil, errors.New("Operação não encontrada")
+		return ServicoHeader{}, errors.New("Operação não encontrada")
 	}
 	if _, ok := Servico_Valor[uint8(servico)]; !ok {
-		return nil, errors.New("Servico não encontrado")
+		return ServicoHeader{}, errors.New("Servico não encontrado")
 	}
 	if _, ok := FormaLancamento_Valor[uint8(fLancamento)]; !ok {
-		return nil, errors.New("Forma de Lançamento não encontrada")
+		return ServicoHeader{}, errors.New("Forma de Lançamento não encontrada")
 	}
-	return &ServicoHeader{
+	return ServicoHeader{
 		Operacao:        operacao,
 		Servico:         servico,
 		FormaLancamento: fLancamento,
@@ -47,7 +47,8 @@ func CriarServicoHeader(operacao Operacao, servico Servico, fLancamento FormaLan
 }
 
 func (sh ServicoHeader) Processar() string {
-	return sh.Operacao.Processar() + sh.Servico.Processar() + sh.FormaLancamento.Processar() + fmt.Sprintf("%03d", sh.LayoutLote)
+	sLayoutLote := fmt.Sprintf("%03d", sh.LayoutLote)
+	return sh.Operacao.Processar() + sh.Servico.Processar() + sh.FormaLancamento.Processar() + sLayoutLote[:3]
 }
 
 // Operacao trata-se do código alfa usado pela FEBRABAN
@@ -57,7 +58,7 @@ func (sh ServicoHeader) Processar() string {
 type Operacao string
 
 const (
-	Opecacao_LANCAMENTO_CREDITO   Operacao = "C"
+	Operacao_LANCAMENTO_CREDITO   Operacao = "C"
 	Operacao_LANCAMENTO_DEBITO    Operacao = "D"
 	Operacao_EXTRATO_CONCILIACAO  Operacao = "E"
 	Operacao_EXTRATO_GESTAO_CAIXA Operacao = "G"
@@ -67,7 +68,8 @@ const (
 )
 
 func (o Operacao) Processar() string {
-	return string(o)
+	sOperacao := string(o)
+	return sOperacao[:1]
 }
 
 var Operacao_Chave = map[string]string{
@@ -133,7 +135,8 @@ const (
 )
 
 func (s Servico) Processar() string {
-	return fmt.Sprintf("%02", s)
+	sServico := fmt.Sprintf("%02d", s)
+	return sServico[:2]
 }
 
 var Servico_Valor = map[uint8]string{
@@ -209,7 +212,8 @@ const (
 )
 
 func (fl FormaLancamento) Processar() string {
-	return fmt.Sprintf("%02", fl)
+	sFormaLancamento := fmt.Sprintf("%02d", fl)
+	return sFormaLancamento[:2]
 }
 
 var FormaLancamento_Valor = map[uint8]string{
