@@ -1,7 +1,7 @@
 package empresa
 
 import (
-	pkgCc "cnab/240/contacorrente"
+	pkgCc "cnab/v240/contacorrente"
 	"fmt"
 	"strconv"
 	"testing"

@@ -1,8 +1,8 @@
-package cnab
+package v240
 
 import (
-	ctrl "cnab/240/controle"
-	svco "cnab/240/servico"
+	ctrl "cnab/v240/controle"
+	svco "cnab/v240/servico"
 )
 
 // Header

@@ -1,7 +1,7 @@
 package favorecido
 
 import (
-	cc "cnab/240/contacorrente"
+	cc "cnab/v240/contacorrente"
 	"errors"
 	"fmt"
 )
