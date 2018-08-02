@@ -19,7 +19,7 @@ func TestCriarHeaderArquivo(t *testing.T) {
 		// NomeBanco acima de 30 dígitos
 		{"XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX", "Nota da Empresa", "NomeBanco deve ter até 30 dígitos"},
 		// ReservadoEmpresa acima de 20 dígitos
-		{"Meu Banco", "Nota da Empresa", "ReservadoEmpresa deve ter até 20 dígitos"},
+		{"Meu Banco", "XXXXXXXXXXXXXXXXXXXXX", "ReservadoEmpresa deve ter até 20 dígitos"},
 	}
 
 	ctrle := controle.Controle{}

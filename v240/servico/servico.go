@@ -10,22 +10,26 @@ const vLayoutLote uint16 = 46
 type ServicoHeader struct {
 	// Servico
 	// valor padrão igual a LancamentoCredito ('C')
+	// *G028
 	// tamanho: 1
-	Operacao Operacao // *G028
+	Operacao Operacao
 
 	// Quando o serviço adotado é Interoperabilidade entre Contas (23)
 	// é obrigatório o preenchimento do campo 18.3C
+	// *G025
 	// tamanho: 2
-	Servico Servico // *G025
+	Servico Servico
 
 	// valor padrão igual a 046
+	// *G029
 	// tamanho: 2
-	FormaLancamento FormaLancamento // *G029
+	FormaLancamento FormaLancamento
 
 	// os 2 primeiros digitos sao a versão
 	// o último digito representa a release
+	// *G030
 	// tamanho: 3
-	LayoutLote uint16 // *G030
+	LayoutLote uint16
 }
 
 func CriarServicoHeader(operacao Operacao, servico Servico, fLancamento FormaLancamento) (ServicoHeader, error) {
