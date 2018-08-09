@@ -5,6 +5,7 @@ import (
 	"cnab/v240/controle"
 	"cnab/v240/empresa"
 	"cnab/v240/empresa/endereco"
+	"cnab/v240/favorecido"
 	"cnab/v240/servico"
 	"fmt"
 	"strconv"
@@ -210,6 +211,43 @@ func TestProcessarHeaderLotePagamento(t *testing.T) {
 			// 2. Verificar processamento
 			if esperado, obtido := cenario.esperado, resultado; esperado != obtido {
 				t.Errorf("Erro ao verificar processamento\nEsperado: %s\nObtido: %s", esperado, obtido)
+			}
+		})
+	}
+}
+
+func TestCriarSegmentoA(t *testing.T) {
+	cenariosTest := []struct {
+		controle                     controle.Controle
+		servico                      servico.ServicoDetalhe
+		favorecido                   favorecido.Favorecido
+		credito                      credito.Credito
+		mensagem                     string
+		codigoFinalidadeDoc          string
+		codigoFinalidadeTed          string
+		codigoFinalidadeComplementar string
+		aviso                        string
+		msgErro                      string
+	}{}
+
+	for i, cenario := range cenariosTest {
+		t.Run(strconv.Itoa(i), func(t *testing.T) {
+			// 1. Criar SegmentoA com os parametros do cenario
+			_, err := CriarSegmentoA(
+				cenario.controle,
+				cenario.servico,
+				cenario.favorecido,
+				cenario.credito,
+				cenario.mensagem,
+				cenario.codigoFinalidadeDoc,
+				cenario.codigoFinalidadeTed,
+				cenario.codigoFinalidadeComplementar,
+				cenario.aviso,
+			)
+
+			// 2. Testar mensagem de erro se houver
+			if esperado, obtido := cenario.msgErro, fmt.Sprint(err); esperado != obtido {
+				t.Errorf("Erro ao verificar mensagem\nEsperado: %s\nObtido: %s", esperado, obtido)
 			}
 		})
 	}

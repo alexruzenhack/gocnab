@@ -32,6 +32,39 @@ type ServicoHeader struct {
 	LayoutLote uint16
 }
 
+type ServicoDetalhe struct {
+	// Número adotado e controlado pelo responsável pela geração magnétida
+	// dos dados contidos no arquivo, para identificar a sequência de registros
+	// encaminhados no lote.
+	// Deve iniciar em 1 em cada novo lote.
+	// *G038
+	// tamanho: 5
+	NumeroRegistroLote uint32
+
+	// Código adotado pela FEBRABAN para identificar o segmento do registro
+	// *G039
+	// tamanho: 1
+	Segmento string
+
+	// *G060, G061
+	// tamanho: 3
+	Movimento Movimento
+}
+
+type Movimento struct {
+	// Código adotado pela FEBRABAN para identificar o tipo de movimentação
+	// enviada no arquivo
+	// *G060
+	// tamanho: 1
+	Tipo TipoMovimento
+
+	// Código adotado pela FEBRABAN para identificar a ação a ser realizada
+	// com o lançamento enviado no arquivo
+	// G061
+	// tamanho: 2
+	Codigo CodigoInstrucao
+}
+
 func CriarServicoHeader(operacao Operacao, servico Servico, fLancamento FormaLancamento) (ServicoHeader, error) {
 	if _, ok := Operacao_Valor[string(operacao)]; !ok {
 		return ServicoHeader{}, errors.New("Operação não encontrada")
@@ -50,9 +83,37 @@ func CriarServicoHeader(operacao Operacao, servico Servico, fLancamento FormaLan
 	}, nil
 }
 
+func CriarServicoDetalhe(numRegLote uint32, segmento string, movimento Movimento) (ServicoDetalhe, error) {
+	if numRegLote > 99999 {
+		return ServicoDetalhe{}, errors.New("NumeroRegistroLote deve ter até 5 dígitos")
+	} else if len(segmento) > 1 {
+		return ServicoDetalhe{}, errors.New("Segmento deve ter até 1 caracter")
+	}
+	return ServicoDetalhe{numRegLote, segmento, movimento}, nil
+}
+
+func CriarMovimento(tipo TipoMovimento, codigo CodigoInstrucao) (Movimento, error) {
+	if _, ok := TipoMovimento_Valor[uint8(tipo)]; !ok {
+		return Movimento{}, errors.New("TipoMovimento não encontrado")
+	} else if _, ok := CodigoInstrucao_Valor[uint8(codigo)]; !ok {
+		return Movimento{}, errors.New("CodigoInstrucao não encontrado")
+	}
+	return Movimento{tipo, codigo}, nil
+}
+
 func (sh ServicoHeader) Processar() string {
 	sLayoutLote := fmt.Sprintf("%03d", sh.LayoutLote)
 	return sh.Operacao.Processar() + sh.Servico.Processar() + sh.FormaLancamento.Processar() + sLayoutLote[:3]
+}
+
+func (sd ServicoDetalhe) Processar() string {
+	sNumRegLote := fmt.Sprintf("%05d", sd.NumeroRegistroLote)
+	sSegmento := fmt.Sprintf("%1s", sd.Segmento)
+	return sNumRegLote[:5] + sSegmento[:1] + sd.Movimento.Processar()
+}
+
+func (m Movimento) Processar() string {
+	return m.Tipo.Processar() + m.Codigo.Processar()
 }
 
 // Operacao trata-se do código alfa usado pela FEBRABAN
@@ -250,4 +311,72 @@ var FormaLancamento_Valor = map[uint8]string{
 	71: "DEPOSITO_JUDICIAL_CONTACORRENTE",
 	72: "DEPOSITO_JUDICIAL_POUPANCA",
 	73: "EXTRATO_CONTA_INVESTIMENTO",
+}
+
+// Código adotado pela FEBRABAN para identificar o tipo de movimentação
+// enviada no arquivo
+type TipoMovimento uint8
+
+func (sm TipoMovimento) Processar() string {
+	sTipoMovimento := fmt.Sprintf("%1d", sm)
+	return sTipoMovimento[:1]
+}
+
+const (
+	TipoMovimento_INCLUSAO   TipoMovimento = 0
+	TipoMovimento_CONSULTA   TipoMovimento = 1
+	TipoMovimento_SUSPENSAO  TipoMovimento = 2
+	TipoMovimento_ESTORNO    TipoMovimento = 3
+	TipoMovimento_REATIVACAO TipoMovimento = 4
+	TipoMovimento_ALTERACAO  TipoMovimento = 5
+	TipoMovimento_LIQUIDACAO TipoMovimento = 7
+	TipoMovimento_EXCLUSAO   TipoMovimento = 9
+)
+
+var TipoMovimento_Valor = map[uint8]string{
+	0: "INCLUSAO",
+	1: "CONSULTA",
+	2: "SUSPENSAO",
+	3: "ESTORNO",
+	4: "REATIVACAO",
+	5: "ALTERACAO",
+	7: "LIQUIDACAO",
+	9: "EXCLUSAO",
+}
+
+type CodigoInstrucao uint8
+
+func (ci CodigoInstrucao) Processar() string {
+	sCodigoInstrucao := fmt.Sprintf("%-2d", ci)
+	return sCodigoInstrucao[:2]
+}
+
+const (
+	CodigoInstrucao_INCLUSAO_REGISTRO_DETALHADO_LIBERADO    CodigoInstrucao = 0
+	CodigoInstrucao_INCLUSAO_REGISTRO_DETALHADO_BLOQUADO    CodigoInstrucao = 9
+	CodigoInstrucao_ALTERACAO_BLOQUEIO_PAGAMENTO_LIBERADO   CodigoInstrucao = 10
+	CodigoInstrucao_ALTERACAO_LIBERACAO_PAGAMENTO_BLOQUEADO CodigoInstrucao = 11
+	CodigoInstrucao_ALTERACAO_VALOR_TITULO                  CodigoInstrucao = 17
+	CodigoInstrucao_ALTERACAO_DATA_PAGAMENTO                CodigoInstrucao = 19
+	CodigoInstrucao_PAGAMENTO_DIRETO_FORNECEDOR             CodigoInstrucao = 23
+	CodigoInstrucao_MANUTENCAO_EM_CARTEIRA                  CodigoInstrucao = 25
+	CodigoInstrucao_RETIRADA_DE_CARTEIRA                    CodigoInstrucao = 27
+	CodigoInstrucao_ESTORNO_DEVOLUCAO_CAMARA_CENTRALIZADORA CodigoInstrucao = 33
+	CodigoInstrucao_ALEGACAO_PAGADOR                        CodigoInstrucao = 40
+	CodigoInstrucao_EXCLUSAO_REGISTRO_INCLUIDO              CodigoInstrucao = 99
+)
+
+var CodigoInstrucao_Valor = map[uint8]string{
+	0:  "INCLUSAO_REGISTRO_DETALHADO_LIBERADO",
+	9:  "INCLUSAO_REGISTRO_DETALHADO_BLOQUADO",
+	10: "ALTERACAO_BLOQUEIO_PAGAMENTO_LIBERADO",
+	11: "ALTERACAO_LIBERACAO_PAGAMENTO_BLOQUEADO",
+	17: "ALTERACAO_VALOR_TITULO",
+	19: "ALTERACAO_DATA_PAGAMENTO",
+	23: "PAGAMENTO_DIRETO_FORNECEDOR",
+	25: "MANUTENCAO_EM_CARTEIRA",
+	27: "RETIRADA_DE_CARTEIRA",
+	33: "ESTORNO_DEVOLUCAO_CAMARA_CENTRALIZADORA",
+	40: "ALEGACAO_PAGADOR",
+	99: "EXCLUSAO_REGISTRO_INCLUIDO",
 }

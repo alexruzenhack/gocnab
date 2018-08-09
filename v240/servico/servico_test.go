@@ -2,6 +2,7 @@ package servico
 
 import (
 	"fmt"
+	"strconv"
 	"testing"
 )
 
@@ -79,5 +80,101 @@ func TestPodeProcessarServicoHeaderComDigitosAlemDoLimite(t *testing.T) {
 		} else if entry.saida != resultado {
 			t.Errorf("Erro na determinação do resultado ao processar ServicoHeader quando a propriedade %s tem dígitos além do limite", entry.campo)
 		}
+	}
+}
+
+func TestCriarServicoDetalhe(t *testing.T) {
+	cenariosTest := []struct {
+		nRegistro  uint32
+		seguimento string
+		movimento  Movimento
+		msgErr     string
+	}{
+		// Caminho feliz
+		{1, "A", Movimento{TipoMovimento_INCLUSAO, CodigoInstrucao_INCLUSAO_REGISTRO_DETALHADO_LIBERADO},
+			""},
+		// NumeroRegistro lote com mais de 5 dígitos
+		{999999, "A", Movimento{TipoMovimento_INCLUSAO, CodigoInstrucao_INCLUSAO_REGISTRO_DETALHADO_LIBERADO},
+			"NumeroRegistroLote deve ter até 5 dígitos"},
+		// Seguimento com mais de 1 caracter
+		{1, "XX", Movimento{TipoMovimento_INCLUSAO, CodigoInstrucao_INCLUSAO_REGISTRO_DETALHADO_LIBERADO},
+			"Segmento deve ter até 1 caracter"},
+	}
+
+	for i, cenario := range cenariosTest {
+		t.Run(strconv.Itoa(i), func(t *testing.T) {
+			// 1. Criar ServicoDetalhe com os parametros do cenario
+			_, err := CriarServicoDetalhe(cenario.nRegistro, cenario.seguimento, cenario.movimento)
+
+			// 2. Verificar mensagem de erro se houver
+			if esperado, obtido := cenario.msgErr, fmt.Sprint(err); esperado != "" && esperado != obtido {
+				t.Errorf("Erro ao verificar mensagem\nEsperado: %s\nObtido: %s", esperado, obtido)
+			}
+		})
+	}
+}
+
+func TestProcessarServicoDetalhe(t *testing.T) {
+	cenariosTest := []struct {
+		servicoDetalhe ServicoDetalhe
+		esperado       string
+	}{}
+
+	for i, cenario := range cenariosTest {
+		t.Run(strconv.Itoa(i), func(t *testing.T) {
+			// 1. Processar servicoDetalhe do cenario
+			resultado := cenario.servicoDetalhe.Processar()
+
+			// 2. Verificar resultado do processamento
+			if esperado, obtido := cenario.esperado, resultado; esperado != obtido {
+				t.Errorf("Erro ao verificar processamento\nEsperado: %s\nObtido: %s", esperado, obtido)
+			}
+		})
+	}
+}
+
+func TestCriarMovimento(t *testing.T) {
+	cenariosTest := []struct {
+		tipo   TipoMovimento
+		codigo CodigoInstrucao
+		msgErr string
+	}{
+		// Caminho feliz
+		{TipoMovimento_INCLUSAO, CodigoInstrucao_INCLUSAO_REGISTRO_DETALHADO_LIBERADO, ""},
+		// Tipo com mais de 1 dígito
+		{99, CodigoInstrucao_INCLUSAO_REGISTRO_DETALHADO_LIBERADO, "TipoMovimento não encontrado"},
+		// Codigo com mais de 2 dígitos
+		{TipoMovimento_INCLUSAO, 199, "CodigoInstrucao não encontrado"},
+	}
+
+	for i, cenario := range cenariosTest {
+		t.Run(strconv.Itoa(i), func(t *testing.T) {
+			// 1. Criar Movimento com os parametros do cenario
+			_, err := CriarMovimento(cenario.tipo, cenario.codigo)
+
+			// 2. Verificar mensagem de erro se houver
+			if esperado, obtido := cenario.msgErr, fmt.Sprint(err); esperado != "" && esperado != obtido {
+				t.Errorf("Erro ao verificar mensagem\nEsperado: %s\nObtido: %s", esperado, obtido)
+			}
+		})
+	}
+}
+
+func TestProcessarMovimento(t *testing.T) {
+	cenariosTest := []struct {
+		movimento Movimento
+		esperado  string
+	}{}
+
+	for i, cenario := range cenariosTest {
+		t.Run(strconv.Itoa(i), func(t *testing.T) {
+			// 1. Processar Movimento do cenario
+			resultado := cenario.movimento.Processar()
+
+			// 2. Verificar resultado do processamento
+			if esperado, obtido := cenario.esperado, resultado; esperado != obtido {
+				t.Errorf("Erro ao verificar processamento\nEsperado: %s\nObtido: %s", esperado, obtido)
+			}
+		})
 	}
 }
