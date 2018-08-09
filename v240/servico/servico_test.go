@@ -118,7 +118,17 @@ func TestProcessarServicoDetalhe(t *testing.T) {
 	cenariosTest := []struct {
 		servicoDetalhe ServicoDetalhe
 		esperado       string
-	}{}
+	}{
+		// Caminho feliz
+		{ServicoDetalhe{1, "A", Movimento{TipoMovimento_INCLUSAO, CodigoInstrucao_INCLUSAO_REGISTRO_DETALHADO_LIBERADO}},
+			"00001A000"},
+		// NumeroRegistroLote acima de 5 dígitos
+		{ServicoDetalhe{999999, "A", Movimento{TipoMovimento_INCLUSAO, CodigoInstrucao_INCLUSAO_REGISTRO_DETALHADO_LIBERADO}},
+			"99999A000"},
+		// Segmento acima de 1 caracter
+		{ServicoDetalhe{1, "AB", Movimento{TipoMovimento_INCLUSAO, CodigoInstrucao_INCLUSAO_REGISTRO_DETALHADO_LIBERADO}},
+			"00001A000"},
+	}
 
 	for i, cenario := range cenariosTest {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {

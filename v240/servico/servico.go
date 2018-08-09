@@ -347,7 +347,7 @@ var TipoMovimento_Valor = map[uint8]string{
 type CodigoInstrucao uint8
 
 func (ci CodigoInstrucao) Processar() string {
-	sCodigoInstrucao := fmt.Sprintf("%-2d", ci)
+	sCodigoInstrucao := fmt.Sprintf("%02d", ci)
 	return sCodigoInstrucao[:2]
 }
 
