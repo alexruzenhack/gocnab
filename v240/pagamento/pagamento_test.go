@@ -3,6 +3,7 @@ package pagamento
 import (
 	"cnab/v240/contacorrente"
 	"cnab/v240/controle"
+	"cnab/v240/credito"
 	"cnab/v240/empresa"
 	"cnab/v240/empresa/endereco"
 	"cnab/v240/favorecido"
